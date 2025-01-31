@@ -33,7 +33,7 @@ export interface RawSwap {
 	amountIn: string;
 	amountOut: string;
 	amountOutUSD: string;
-	id: string;
+	hash: string;
 	timestamp: string;
 	tokenIn: { symbol: string };
 	tokenOut: { symbol: string };

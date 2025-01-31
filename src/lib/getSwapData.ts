@@ -39,7 +39,7 @@ export async function getSwaps({ pool, wallet }: GetSwapsArgs) {
 		const tokenB = tokenIn.symbol < tokenOut.symbol ? tokenOut.symbol : tokenIn.symbol;
 
 		return {
-			hash: swap.id,
+			hash: swap.hash,
 			timestamp: Number(swap.timestamp),
 			tokenA,
 			tokenB,
@@ -66,7 +66,7 @@ query GetSwaps($poolAddress: Bytes!, $walletAddress: Bytes, $first: Int, $skip: 
 			ACCOUNT_FILTER
     }
   ) {
-    id
+    hash
     timestamp
     tokenIn {
       symbol
