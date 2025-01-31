@@ -1,3 +1,14 @@
+> [!NOTE]
+> This repo was originally created for a [bounty](https://www.bountycaster.xyz/bounty/0x889fb69f553d30ec2afec97f22e54481f6911417) on Bountycaster.
+
+# Uniswap Transaction Table
+
+![screenshot](./screenshot.png)
+
+I recreated the Uniswap [transactions table](https://app.uniswap.org/explore/pools/base/0x9a4b641dbAd8F208952F34fb76ed664E28e0b514) using data from GraphQL subgraphs.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
