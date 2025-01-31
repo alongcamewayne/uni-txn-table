@@ -1,11 +1,8 @@
-'use server';
-
-import { Hex } from 'viem';
-import { Root } from './types';
+import { QueryData } from './types';
 
 const subgraph = 'https://interface.gateway.uniswap.org/v1/graphql';
 
-export async function getTransactionData({ pool }: { pool: Hex }) {
+export async function getTransactionData({ pool }: { pool: string }) {
 	const response = await fetch(subgraph, {
 		method: 'post',
 		headers: {
@@ -17,7 +14,7 @@ export async function getTransactionData({ pool }: { pool: Hex }) {
 
 	if (!response.ok) throw new Error('Failed to fetch transaction data');
 
-	return ((await response.json()) as Root).data.v3Pool;
+	return ((await response.json()) as QueryData).data.v3Pool;
 }
 
 const payload = {

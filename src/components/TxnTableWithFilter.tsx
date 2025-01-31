@@ -1,34 +1,38 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
-import { isAddress } from 'viem';
-import type { Transaction } from '@/lib/types';
-import { useTransactions } from '@/lib/useTransactions';
+import { formatEther, isAddress } from 'viem';
+import { useSwaps } from '@/lib/useSwaps';
 import { formatNumber } from '@/lib/utils';
 
 dayjs.extend(relativeTime);
 
-export function TxnTable() {
+export function TxnTableWithFilter() {
 	const [poolInput, setPoolInput] = useState('0x9a4b641dbAd8F208952F34fb76ed664E28e0b514');
+	const [walletInput, setWalletInput] = useState('');
 	const [poolAddress, setPoolAddress] = useState('0x9a4b641dbAd8F208952F34fb76ed664E28e0b514');
-	const [token0, setToken0] = useState('');
-	const [token1, setToken1] = useState('');
+	const [walletAddress, setWalletAddress] = useState('');
 
-	const { isLoading, transactions } = useTransactions({ pool: poolAddress });
-
-	useEffect(() => {
-		if (transactions?.length) {
-			setToken0(transactions[0].token0.symbol);
-			setToken1(transactions[0].token1.symbol);
-		}
-	}, [transactions]);
+	const { isLoading, swaps } = useSwaps({ pool: poolAddress, wallet: walletAddress });
 
 	function handlePoolSubmit() {
 		if (isAddress(poolInput.trim())) setPoolAddress(poolInput);
 		else alert('Invalid pool address');
+	}
+
+	function handleFilterSubmit() {
+		if (isAddress(walletInput)) setWalletAddress(walletInput);
+		else alert('Invalid wallet address');
+	}
+
+	function handleFilterClear() {
+		const el = document.getElementById('walletInput') as HTMLInputElement;
+		if (el) el.value = '';
+		setWalletInput('');
+		setWalletAddress('');
 	}
 
 	return (
@@ -51,6 +55,30 @@ export function TxnTable() {
 						</button>
 					</div>
 				</div>
+
+				<div className='flex flex-col'>
+					<label>Filter by Wallet</label>
+					<div className='flex items-stretch gap-2'>
+						<input
+							id='walletInput'
+							type='text'
+							defaultValue={walletAddress}
+							onChange={(e) => setWalletInput(e.target.value)}
+							placeholder='Enter a wallet address to filter by'
+							className='px-4 grow py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500'
+						/>
+						<button
+							onClick={handleFilterSubmit}
+							className='bg-black hover:bg-zinc-800 text-white transition rounded-lg px-5'>
+							Filter
+						</button>
+						<button
+							onClick={handleFilterClear}
+							className='border hover:bg-black/20 transition rounded-lg px-5'>
+							Clear
+						</button>
+					</div>
+				</div>
 			</div>
 
 			<table className='min-w-full bg-black text-white border border-gray-800 rounded-lg overflow-hidden'>
@@ -59,8 +87,8 @@ export function TxnTable() {
 						<th className='px-4 py-2 text-left max-w-[200px]'>Time</th>
 						<th className='px-4 py-2 text-left'>Type</th>
 						<th className='px-4 py-2 text-right'>USD</th>
-						<th className='px-4 py-2 text-right'>{isLoading ? '' : token0}</th>
-						<th className='px-4 py-2 text-right'>{isLoading ? '' : token1}</th>
+						<th className='px-4 py-2 text-right'>{isLoading ? '' : swaps[0]?.tokenA ?? ''}</th>
+						<th className='px-4 py-2 text-right'>{isLoading ? '' : swaps[0]?.tokenB ?? ''}</th>
 					</tr>
 				</thead>
 
@@ -71,17 +99,17 @@ export function TxnTable() {
 								Loading...
 							</td>
 						</tr>
-					) : transactions.length ? (
-						transactions.map((txn: Transaction, i) => {
-							const isSell = Number(txn.token0Quantity) > 0;
+					) : swaps.length ? (
+						swaps.map((swap, i) => {
+							const isSell = swap.tokenA === swap.tokenSold;
 							return (
 								<tr key={i} className='border-b border-gray-800'>
 									<td className='px-4 py-2 max-w-[200px]'>
 										<Link
-											href={`https://basescan.org/tx/${txn.hash}`}
+											href={`https://basescan.org/tx/${swap.hash}`}
 											target='_blank'
 											className='group hover:underline flex gap-2 items-center w-fit'>
-											{dayjs.unix(txn.timestamp).fromNow()}
+											{dayjs.unix(swap.timestamp).fromNow()}
 
 											<svg
 												xmlns='http://www.w3.org/2000/svg'
@@ -101,14 +129,16 @@ export function TxnTable() {
 										</Link>
 									</td>
 									<td className={`px-4 py-2 ${isSell ? 'text-red-500' : 'text-green-500'}`}>
-										{isSell ? 'Sell' : 'Buy'} {token0}
-									</td>
-									<td className='px-4 py-2 text-right'>{formatNumber(txn.usdValue.value, true)}</td>
-									<td className='px-4 py-2 text-right'>
-										{formatNumber(Math.abs(Number(txn.token0Quantity)))}
+										{isSell ? 'Sell' : 'Buy'} {swaps[0].tokenA}
 									</td>
 									<td className='px-4 py-2 text-right'>
-										{formatNumber(Math.abs(Number(txn.token1Quantity)))}
+										{formatNumber(Number(swap.usdValue), true)}
+									</td>
+									<td className='px-4 py-2 text-right'>
+										{formatNumber(Math.abs(Number(formatEther(BigInt(swap.amountIn)))))}
+									</td>
+									<td className='px-4 py-2 text-right'>
+										{formatNumber(Math.abs(Number(formatEther(BigInt(swap.amountOut)))))}
 									</td>
 								</tr>
 							);
@@ -116,7 +146,7 @@ export function TxnTable() {
 					) : (
 						<tr>
 							<td className='px-4 py-2' colSpan={5}>
-								No transactions found
+								No swaps found.
 							</td>
 						</tr>
 					)}

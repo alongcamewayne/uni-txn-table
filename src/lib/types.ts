@@ -1,68 +1,52 @@
-export interface Root {
-	data: Data;
-}
-
-export interface Data {
-	v3Pool: V3Pool;
-}
-
-export interface V3Pool {
-	id: string;
-	transactions: Transaction[];
+export interface QueryData {
+	data: {
+		v3Pool: {
+			id: string;
+			transactions: Transaction[];
+		};
+	};
 }
 
 export interface Transaction {
 	timestamp: number;
 	hash: string;
 	account: string;
-	token0: Token0;
+	token0: Token;
 	token0Quantity: string;
-	token1: Token1;
+	token1: Token;
 	token1Quantity: string;
-	usdValue: UsdValue;
+	usdValue: { value: number };
 	type: string;
 }
 
-export interface Token0 {
+export interface Token {
 	id: string;
 	address: string;
 	symbol: string;
 	chain: string;
 	decimals: number;
-	project: Project;
+	project: { id: string; name: string; logo: { id: string; url: string } };
 }
 
-export interface Project {
+export interface RawSwap {
+	account: { id: string };
+	amountIn: string;
+	amountOut: string;
+	amountOutUSD: string;
 	id: string;
-	name: string;
-	logo: Logo;
+	timestamp: string;
+	tokenIn: { symbol: string };
+	tokenOut: { symbol: string };
 }
 
-export interface Logo {
-	id: string;
-	url: string;
-}
-
-export interface Token1 {
-	id: string;
-	address: string;
-	symbol: string;
-	chain: string;
-	decimals: number;
-	project: Project2;
-}
-
-export interface Project2 {
-	id: string;
-	name: string;
-	logo: Logo2;
-}
-
-export interface Logo2 {
-	id: string;
-	url: string;
-}
-
-export interface UsdValue {
-	value: number;
+export interface Swap {
+	amountIn: string;
+	amountOut: string;
+	usdValue: string;
+	hash: string;
+	timestamp: number;
+	tokenA: string;
+	tokenB: string;
+	tokenSold: string;
+	wallet: string;
 }
