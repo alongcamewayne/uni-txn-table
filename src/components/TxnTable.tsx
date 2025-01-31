@@ -7,7 +7,7 @@ import relativeTime from 'dayjs/plugin/relativeTime.js';
 import { isAddress } from 'viem';
 import type { Transaction } from '@/lib/types';
 import { useTransactions } from '@/lib/useTransactions';
-import { formatNumber } from '@/lib/utils';
+import { formatNumber, truncateAddress } from '@/lib/utils';
 
 dayjs.extend(relativeTime);
 
@@ -61,13 +61,14 @@ export function TxnTable() {
 						<th className='px-4 py-2 text-right'>USD</th>
 						<th className='px-4 py-2 text-right'>{isLoading ? '' : token0}</th>
 						<th className='px-4 py-2 text-right'>{isLoading ? '' : token1}</th>
+						<th className='px-4 py-2 text-right'>Wallet</th>
 					</tr>
 				</thead>
 
 				<tbody>
 					{isLoading ? (
 						<tr>
-							<td className='px-4 py-2' colSpan={5}>
+							<td className='px-4 py-2' colSpan={6}>
 								Loading...
 							</td>
 						</tr>
@@ -110,12 +111,20 @@ export function TxnTable() {
 									<td className='px-4 py-2 text-right'>
 										{formatNumber(Math.abs(Number(txn.token1Quantity)))}
 									</td>
+									<td className='px-4 py-2 text-right'>
+										<Link
+											href={`https://basescan.org/address/${txn.account}`}
+											target='_blank'
+											className='hover:underline'>
+											{truncateAddress(txn.account)}
+										</Link>
+									</td>
 								</tr>
 							);
 						})
 					) : (
 						<tr>
-							<td className='px-4 py-2' colSpan={5}>
+							<td className='px-4 py-2' colSpan={6}>
 								No transactions found
 							</td>
 						</tr>

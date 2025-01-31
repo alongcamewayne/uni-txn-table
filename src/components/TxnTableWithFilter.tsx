@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 import { formatEther, isAddress } from 'viem';
 import { useSwaps } from '@/lib/useSwaps';
-import { formatNumber } from '@/lib/utils';
+import { formatNumber, truncateAddress } from '@/lib/utils';
 
 dayjs.extend(relativeTime);
 
@@ -89,13 +89,14 @@ export function TxnTableWithFilter() {
 						<th className='px-4 py-2 text-right'>USD</th>
 						<th className='px-4 py-2 text-right'>{isLoading ? '' : swaps[0]?.tokenA ?? ''}</th>
 						<th className='px-4 py-2 text-right'>{isLoading ? '' : swaps[0]?.tokenB ?? ''}</th>
+						<th className='px-4 py-2 text-right'>Wallet</th>
 					</tr>
 				</thead>
 
 				<tbody>
 					{isLoading ? (
 						<tr>
-							<td className='px-4 py-2' colSpan={5}>
+							<td className='px-4 py-2' colSpan={6}>
 								Loading...
 							</td>
 						</tr>
@@ -140,12 +141,20 @@ export function TxnTableWithFilter() {
 									<td className='px-4 py-2 text-right'>
 										{formatNumber(Math.abs(Number(formatEther(BigInt(swap.amountOut)))))}
 									</td>
+									<td className='px-4 py-2 text-right'>
+										<Link
+											href={`https://basescan.org/address/${swap.wallet}`}
+											target='_blank'
+											className='hover:underline'>
+											{truncateAddress(swap.wallet)}
+										</Link>
+									</td>
 								</tr>
 							);
 						})
 					) : (
 						<tr>
-							<td className='px-4 py-2' colSpan={5}>
+							<td className='px-4 py-2' colSpan={6}>
 								No swaps found.
 							</td>
 						</tr>
